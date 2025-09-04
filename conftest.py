@@ -1,5 +1,5 @@
-import pytest
-from playwright.sync_api import Page, expect, Browser, Playwright
+# import pytest
+# from playwright.sync_api import Page, expect, Browser, Playwright
 
 
 # @pytest.fixture()
@@ -27,3 +27,31 @@ from playwright.sync_api import Page, expect, Browser, Playwright
 #
 #     browser.close()
 
+
+import pytest
+from playwright.sync_api import sync_playwright, Browser, Page
+from typing import Generator
+
+
+@pytest.fixture(scope="session")
+def browser() -> Generator[Browser, None, None]:
+    with sync_playwright() as p:
+        browser = p.chromium.launch(
+            headless=True,   # 👈 запуск без окна браузера
+            args=["--disable-notifications"]
+        )
+        yield browser
+        browser.close()
+
+
+@pytest.fixture(scope="function")
+def page(browser: Browser) -> Generator[Page, None, None]:
+    context = browser.new_context()
+    page = context.new_page()
+    yield page
+    context.close()
+
+
+def test_example(page: Page):
+    page.goto("https://example.com")
+    assert "Example Domain" in page.title()
