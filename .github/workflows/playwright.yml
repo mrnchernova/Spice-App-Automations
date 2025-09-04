@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Log webhook payload
-        run: echo "Received webhook event!"
+        run: echo "Received webhook event!3"
 #          echo "Event Type: ${{ github.event.action }}"
 #          echo "Payload: ${{ github.event.client_payload | toJson }}"
 
