@@ -4,7 +4,9 @@ import time
 from pages.main_page import MainPage
 
 def test_wiki(page):
-    # page.goto('https://www.wikipedia.org/')
+    main_page = MainPage(page)
+    main_page.open()
+    main_page.check_link_visible()
     page.get_by_role('link', name='English').click()
     expect(page.get_by_text('From today\'s featured article')).to_be_visible()
     time.sleep(5)
