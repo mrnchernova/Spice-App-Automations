@@ -6,11 +6,11 @@ from playwright.sync_api import Page, expect, Browser, Playwright
 # def main_url(page:Page):
 #     page.goto('https://www.wikipedia.org/')
 
-@pytest.fixture()
-def page(context):
-    page: Page = context.new_page()
-    page.set_viewport_size({'height': 1080, 'width': 1920})
-    yield page
+# @pytest.fixture()
+# def page(context):
+#     page: Page = context.new_page()
+#     page.set_viewport_size({'height': 1080, 'width': 1920})
+#     yield page
 
 # @pytest.fixture(scope="function")
 # def setup_browser(playwright: Playwright) -> Page:
