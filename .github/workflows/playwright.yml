@@ -3,14 +3,29 @@ name: Playwright Tests
 on:
 #  push
   repository_dispatch:
-#        types: [ "my_custom_event" ]
+    types: [ "smee_test_event" ]
+
 
 jobs:
-  handle_webhook:
+  test_smee_dispatch:
     runs-on: ubuntu-latest
     steps:
-      - name: Log webhook payload
-        run: echo "Received webhook event!"
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log received event data
+        run: |
+          echo "Smee test event received!"
+          echo "Event Type: ${{ github.event.action }}"
+          echo "Client Payload:"
+          echo "${{ toJSON(github.event.client_payload) }}"
+
+#jobs:
+#  handle_webhook:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Log webhook payload
+#        run: echo "Received webhook event!"
 #          echo "Event Type: ${{ github.event.action }}"
 #          echo "Payload: ${{ github.event.client_payload | toJson }}"
 
