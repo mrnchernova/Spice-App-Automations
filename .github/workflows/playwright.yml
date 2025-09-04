@@ -9,10 +9,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Log webhook payload
-        run: |
-          echo "Received webhook event!"
-          echo "Event Type: ${{ github.event.action }}"
-          echo "Payload: ${{ github.event.client_payload | toJson }}"
+        run: echo "Received webhook event!"
+#          echo "Event Type: ${{ github.event.action }}"
+#          echo "Payload: ${{ github.event.client_payload | toJson }}"
 
 #  test:
 #    timeout-minutes: 60
