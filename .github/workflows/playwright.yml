@@ -1,7 +1,8 @@
 name: Playwright Tests
 
 on:
-      repository_dispatch:
+  push
+#      repository_dispatch:
 #        types: [ "my_custom_event" ]
 
 jobs:
@@ -9,9 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Log webhook payload
-        run: echo "Received webhook event!3"
-#          echo "Event Type: ${{ github.event.action }}"
-#          echo "Payload: ${{ github.event.client_payload | toJson }}"
+        run: |
+          echo "Received webhook event!"
+          echo "Event Type: ${{ github.event.action }}"
+          echo "Payload: ${{ github.event.client_payload | toJson }}"
 
 #  test:
 #    timeout-minutes: 60
