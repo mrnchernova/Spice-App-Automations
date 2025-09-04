@@ -1,4 +1,4 @@
-# Spice-App-Automations
+# Actions-App-Automations
 
 ## RUN
 **clone project**
