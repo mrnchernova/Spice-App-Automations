@@ -1,8 +1,8 @@
 name: Playwright Tests
 
 on:
-  push
-#      repository_dispatch:
+#  push
+  repository_dispatch:
 #        types: [ "my_custom_event" ]
 
 jobs:
