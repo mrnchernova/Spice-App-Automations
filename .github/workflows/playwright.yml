@@ -55,8 +55,8 @@ jobs:
 
 
   generate-report:
-    runs-on: ubuntu-latest
     needs: test
+    runs-on: ubuntu-latest
     name: Generate report
     steps:
       - uses: actions/setup-java@v3
@@ -76,8 +76,11 @@ jobs:
           retention-days: 1
 
   publish-report:
-    runs-on: ubuntu-latest
     needs: generate-report
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write # Необходимые права для публикации на Pages
+      contents: read # Чтение содержимого репозитория
     name: Report publication
     steps:
       - name: Download all workflow run artifacts
