@@ -1,48 +1,37 @@
 name: Playwright Tests
 
 on:
-#  push
-  repository_dispatch:
-    types: [ "smee_test_event" ]
-
+  workflow_dispatch:
+    inputs:
+      deployment_target:
+        description: Choose target
+        required: true
+        default:
+          type: choice
+          options:
+            - first test
+            - second test
 
 jobs:
-  test_smee_dispatch:
+  test:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Log received event data
-        run: |
-          echo "Smee test event received!"
-          echo "Event Type: ${{ github.event.action }}"
-          echo "Client Payload:"
-          echo "${{ toJSON(github.event.client_payload) }}"
-
-#jobs:
-#  handle_webhook:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Log webhook payload
-#        run: echo "Received webhook event!"
-#          echo "Event Type: ${{ github.event.action }}"
-#          echo "Payload: ${{ github.event.client_payload | toJson }}"
-
-#  test:
-#    timeout-minutes: 60
-#    runs-on: ubuntu-latest
-#    steps:
-#    - uses: actions/checkout@v4
-#    - name: Set up Python
-#      uses: actions/setup-python@v4
-#      with:
-#        python-version: '3.11'
-#    - name: Install dependencies
-#      run: |
-#        python -m pip install --upgrade pip
-#        pip install -r requirements.txt
-#    - name: Ensure browsers are installed
-#      run: python -m playwright install
-#    - name: Run your tests
-#      run: pytest --tracing=retain-on-failure
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: Ensure browsers are installed
+      run: python -m playwright install
+    - name: Run first test
+      if: "github.event.inputs.deployment_target == 'first_test'"
+      run: tests/test_f.py::test_wiki1[chromium]
+    - name: Run second test
+      if: "github.event.inputs.deployment_target == 'second_test'"
+      run: tests/test_f.py::test_wiki2[chromium]
