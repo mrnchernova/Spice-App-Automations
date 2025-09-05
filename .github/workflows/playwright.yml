@@ -81,6 +81,8 @@ jobs:
     permissions:
       pages: write # Необходимые права для публикации на Pages
       contents: read # Чтение содержимого репозитория
+      id-token: write  # <-- Вот это разрешение нужно добавить
+
     name: Report publication
     steps:
       - name: Download all workflow run artifacts
