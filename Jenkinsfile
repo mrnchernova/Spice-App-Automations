@@ -1,68 +1,101 @@
+// Jenkinsfile
 pipeline {
-    agent any
+    agent any // Где будет выполняться pipeline (any - любой доступный агент)
 
-    options {
-        // сохраняем логи поумнее и помечаем сборку как неуспешную при тест-фейлах
-        timestamps()
-        ansiColor('xterm')
+    // Триггеры: когда запускать pipeline
+    triggers {
+        // Этот триггер сработает, когда GitHub отправит webhook (настроенный ранее)
+        // Он слушает события, связанные с SCM (Source Code Management), такие как push.
+        // GitHub Plugin должен быть настроен на вашем Jenkins.
+        githubPush() // По умолчанию запускается при push событиях, настроенных в webhook.
+        // Если вы хотите триггер по Pull Request, вам может понадобиться:
+        // pullRequest()
+    }
+
+    // Секреты, которые будут доступны в pipeline
+    // Здесь мы получаем доступ к нашему PAT из Jenkins credentials
+    environment {
+        GITHUB_PAT = credentials('github-pat') // ID вашего секрета в Jenkins
     }
 
     stages {
-        stage('Checkout') {
+        stage('Checkout Code') {
             steps {
-                git url: 'https://github.com/your/repo.git', branch: 'main' // замените на свой
+                // Получаем код из репозитория.
+                // Используем `github-pat` для аутентификации, если репозиторий приватный.
+                checkout scm
             }
         }
 
-        stage('Set up venv & install deps') {
+        stage('Build') {
             steps {
-                sh '''
-                    python3 -m venv .venv
-                    . .venv/bin/activate
-                    python -m pip install -U pip
-                    pip install -r requirements.txt
-                    # полезно: ставим инструменты отчётности
-                    pip install pytest pytest-html pytest-cov
-                '''
+                echo 'Building the project...'
+                // Замените команду на вашу команду сборки
+                // Пример для Node.js:
+                // sh 'npm install'
+                // sh 'npm run build'
+
+                // Пример для Maven:
+                // sh 'mvn clean package -DskipTests' // Собираем, но пропускаем тесты на этом этапе
             }
         }
 
-        stage('Run pytest') {
+        stage('Test') {
             steps {
-                sh '''
-                    . .venv/bin/activate
-                    pytest \
-                      --junitxml=report.xml \
-                      --html=report.html --self-contained-html \
-                      --cov=. --cov-report=xml:coverage.xml
-                '''
+                echo 'Running tests...'
+                // Замените команду на вашу команду запуска тестов
+                // Пример для Node.js:
+                // sh 'npm test'
+
+                // Пример для Maven (тесты выполняются командой 'test'):
+                // sh 'mvn test'
+
+                // Пример для Python (pytest):
+                // sh 'pytest'
+
+                // Опционально: Если ваши тесты генерируют JUnit XML отчеты
+                // JUnit Plugin должен быть установлен в Jenkins
+                // post {
+                //    always {
+                //        junit '**/target/surefire-reports/*.xml' // Путь к отчетам Maven
+                //    }
+                // }
             }
         }
 
-        stage('Publish reports') {
-            steps {
-                // JUnit-отчёт -> вкладка "Test Result"
-                junit allowEmptyResults: true, testResults: 'report.xml'
-                // HTML-отчёт как артефакт (можно скачать/посмотреть)
-                archiveArtifacts artifacts: 'report.html', fingerprint: true
-                // Покрытие (если установлен плагин "Coverage" или "Cobertura")
-                script {
-                    // Попробуем опубликовать через Coverage plugin (если есть)
-                    try {
-                        publishCoverage adapters: [coberturaAdapter('coverage.xml')], sourceFileResolver: sourceFiles('STORE_ALL_BUILD')]
-                    } catch (err) {
-                        echo "Coverage plugin не настроен: ${err}"
-                        archiveArtifacts artifacts: 'coverage.xml', fingerprint: true
-                    }
-                }
-            }
-        }
+        // Если вам нужно обновлять статус коммита/PR в GitHub
+        // stage('Update GitHub Status') {
+        //     steps {
+        //         echo 'Updating GitHub commit status...'
+        //         // Вам может понадобиться отдельный плагин или скрипт для этого,
+        //         // который использует GITHUB_PAT.
+        //         // Пример использования GitHub CLI:
+        //         // gh api repos/${{ github.repository }}/statuses/${{ github.sha }} \
+        //         //   -H "Authorization: token ${GITHUB_PAT}" \
+        //         //   -f state='success' \
+        //         //   -f description='Tests passed' \
+        //         //   -f context='continuous-integration/jenkins'
+        //     }
+        // }
     }
 
     post {
-        success { echo '✅ Все тесты зелёные' }
-        unstable { echo '⚠️ Есть фейлы/предупреждения' }
-        failure { echo '❌ Тесты упали' }
-        always  { cleanWs(deleteDirs: false, notFailBuild: true) }
+        // Эти блоки выполняются после завершения всех стадий (независимо от успеха)
+        always {
+            echo 'Pipeline finished.'
+            // Очистка рабочего пространства
+            cleanWs()
+        }
+        success {
+            echo 'Pipeline completed successfully!'
+            // Например, отправить уведомление об успехе
+        }
+        failure {
+            echo 'Pipeline failed!'
+            // Например, отправить уведомление о провале
+        }
+        unstable {
+            echo 'Pipeline completed with unstable results (e.g., failed tests but build succeeded).'
+        }
     }
 }
