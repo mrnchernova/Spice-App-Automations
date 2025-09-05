@@ -6,11 +6,12 @@ on:
       deployment_target:
         description: Choose target
         required: true
-        default:
+        default: all tests
         type: choice
         options:
           - first test
           - second test
+          - all tests
 
 jobs:
   test:
@@ -35,3 +36,6 @@ jobs:
     - name: Run second test
       if: "github.event.inputs.deployment_target == 'second_test'"
       run: tests/test_f.py::test_wiki2[chromium]
+    - name: Run all tests
+      if: "github.event.inputs.deployment_target == 'all tests'"
+      run: pytest
